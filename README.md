@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skillforge Academy
 
-## Getting Started
+A single-instructor course platform for corporates and universities.
+React + TypeScript + Vite + Tailwind CSS v4, with a swappable API layer.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # type-check + production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Demo accounts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Role    | Email                        | Password     |
+| ------- | ---------------------------- | ------------ |
+| Admin   | admin@skillforge.example     | admin123     |
+| Learner | priya.nair@acme.example      | learner123   |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+"Reset demo data" is on the login page.
 
-## Learn More
+## What's in it
 
-To learn more about Next.js, take a look at the following resources:
+- **Public site** – home page, course catalog, course detail with curriculum, "Request this course" form for organizations.
+- **Admin (you)** – dashboard, course builder (modules → video / PDF / PPT lessons, upload or link, publish checks), organizations, bulk enrollment from CSV, enrollments with progress and CSV export, learners, course requests.
+- **Learner** – sees only enrolled courses, video / PDF / slides viewer, resume position, mark complete, progress, printable certificate.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Data layer (no backend yet)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All screens talk to the `Api` interface in `src/api/types.ts`.
+Right now it is implemented by `src/api/mock.ts` (browser localStorage + IndexedDB for uploaded files), so everything is demo-able offline.
 
-## Deploy on Vercel
+To connect a real backend (FastAPI / Spring Boot / anything):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Create `src/api/http.ts` that implements `Api` using `fetch`.
+2. Change one line in `src/api/index.ts` to export it.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No page needs to change. Things the real backend must own:
+
+- **Auth**: hash passwords, issue sessions/JWT, enforce roles. Today's checks (`requireAdmin`, route guards) are UI-level only.
+- **Authorization**: a learner may only read courses they are enrolled in, and only their own progress.
+- **File storage**: store uploads in S3 / R2 and serve video via signed URLs or a video service (Mux, Cloudflare Stream, Bunny). `api.files.upload` / `urlFor` are the seam.
+- **PPT**: browsers cannot render `.pptx`. Convert to PDF on upload (LibreOffice) and set `previewFileKey`; until then admins attach a PDF version in the lesson dialog.
+- **Bulk enroll**: `enrollments.importBulk` creates accounts, generates temporary passwords and should send invitation emails.
