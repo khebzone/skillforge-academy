@@ -64,7 +64,7 @@ export default function Organizations() {
                   <div><dt className="text-xs text-ink-500">Learners</dt><dd className="mt-0.5 text-xl font-semibold tabular-nums text-ink-900">{members}</dd></div>
                   <div><dt className="text-xs text-ink-500">Enrollments</dt><dd className="mt-0.5 text-xl font-semibold tabular-nums text-ink-900">{enr}</dd></div>
                 </dl>
-                <p className="mt-4 truncate text-xs text-ink-500">{o.contactName ? `${o.contactName} · ` : ""}{o.contactEmail || "No contact"} · Since {formatDate(o.createdAt, { month: "short", year: "numeric" })}</p>
+                <p className="mt-4 truncate text-xs text-ink-500">{o.contactName ? `${o.contactName} · ` : ""}{o.contactEmail || "No contact"}{o.contactPhone ? ` · ${o.contactPhone}` : ""} · Since {formatDate(o.createdAt, { month: "short", year: "numeric" })}</p>
               </Card>
             );
           })}
@@ -101,7 +101,7 @@ export default function Organizations() {
 }
 
 function OrgModal({ org, onSave, onClose, loading }: { org: Partial<Organization>; onSave: (o: Partial<Organization> & Pick<Organization, "name" | "type">) => void; onClose: () => void; loading: boolean }) {
-  const [f, setF] = useState({ name: org.name ?? "", type: (org.type ?? "corporate") as OrgType, contactName: org.contactName ?? "", contactEmail: org.contactEmail ?? "" });
+  const [f, setF] = useState({ name: org.name ?? "", type: (org.type ?? "corporate") as OrgType, contactName: org.contactName ?? "", contactEmail: org.contactEmail ?? "", contactPhone: org.contactPhone ?? "" });
   return (
     <Modal
       open
@@ -120,6 +120,7 @@ function OrgModal({ org, onSave, onClose, loading }: { org: Partial<Organization
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Contact person"><Input value={f.contactName} onChange={(e) => setF({ ...f, contactName: e.target.value })} /></Field>
           <Field label="Contact email"><Input type="email" value={f.contactEmail} onChange={(e) => setF({ ...f, contactEmail: e.target.value })} /></Field>
+          <Field label="Mobile number" className="sm:col-span-2"><Input type="tel" value={f.contactPhone} onChange={(e) => setF({ ...f, contactPhone: e.target.value })} placeholder="+91 98765 43210" /></Field>
         </div>
       </form>
     </Modal>

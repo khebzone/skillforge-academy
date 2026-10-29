@@ -41,7 +41,7 @@ export default function OrganizationDetail() {
           <span className="grid size-14 place-items-center rounded-2xl bg-brand-600 text-white"><OrgIcon type={org.type} className="size-7" /></span>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-ink-900">{org.name}</h1>
-            <p className="mt-0.5 text-sm text-ink-500">{orgTypeLabel(org.type)} · {org.contactName || "No contact"} {org.contactEmail && <>· <a href={`mailto:${org.contactEmail}`} className="text-brand-700 hover:underline">{org.contactEmail}</a></>}</p>
+            <p className="mt-0.5 text-sm text-ink-500">{orgTypeLabel(org.type)} · {org.contactName || "No contact"} {org.contactEmail && <>· <a href={`mailto:${org.contactEmail}`} className="text-brand-700 hover:underline">{org.contactEmail}</a></>}{org.contactPhone && <> · <a href={`tel:${org.contactPhone}`} className="text-brand-700 hover:underline">{org.contactPhone}</a></>}</p>
           </div>
         </div>
         <LinkButton to={`/admin/enrollments/new?org=${org.id}`}><ClipboardList className="size-4" /> Enroll learners</LinkButton>
