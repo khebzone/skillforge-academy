@@ -47,6 +47,14 @@ export function courseProgress(c: Course, progress: LessonProgress[]) {
 
 export const LESSON_LABEL = { video: "Video", pdf: "PDF document", ppt: "Presentation" } as const;
 
+/** Move an array item from one index to another, returning a new array. Out-of-range `to` is a no-op. */
+export function move<T>(arr: T[], from: number, to: number): T[] {
+  if (to < 0 || to >= arr.length) return arr;
+  const copy = [...arr];
+  copy.splice(to, 0, copy.splice(from, 1)[0]!);
+  return copy;
+}
+
 export const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 
 export function downloadFile(filename: string, content: string, mime = "text/csv") {
