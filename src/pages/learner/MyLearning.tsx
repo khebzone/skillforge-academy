@@ -199,7 +199,7 @@ function LearnerCourseCard({ e, course, p }: { e: Enrollment; course: Course; p:
           </span>
         </div>
         {p.pct === 100 && (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm">
+          <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm">
             <Award className="size-3" /> Completed
           </span>
         )}
