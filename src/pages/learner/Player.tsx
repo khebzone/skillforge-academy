@@ -118,7 +118,7 @@ export default function Player() {
   return (
     <div className="flex min-h-screen flex-col bg-ink-50">
       <header className="sticky top-0 z-30 border-b border-ink-200 bg-white">
-        <div className="flex h-14 items-center gap-2 px-4 sm:gap-3 sm:px-6">
+        <div className={cn("mx-auto flex h-14 w-full items-center gap-2 px-4 sm:gap-3 sm:px-6", theater ? "max-w-[1800px]" : "max-w-[1500px]")}>
           <Link to="/learn" className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-ink-600 hover:bg-ink-100">
             <ArrowLeft className="size-4" /> <span className="hidden sm:inline">My learning</span>
           </Link>
