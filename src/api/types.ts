@@ -77,6 +77,13 @@ export interface LessonProgress {
   completedAt?: string;
   /** Resume position in seconds (videos). */
   position?: number;
+  /**
+   * Seconds of *genuine* engagement recorded for this lesson — accumulated real
+   * playback time for video (seeking/scrubbing isn't counted), or visible-tab
+   * dwell time for PDF/PPT. The player auto-sets `completedAt` once this crosses
+   * ~90% of the lesson's declared duration; there is no manual "mark complete".
+   */
+  activeSeconds?: number;
 }
 
 export interface CourseRequest {

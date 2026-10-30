@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Award, Check, CheckCircle2, List, Lock, Maximize2, Minimize2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, CheckCircle2, List, Lock, Maximize2, Minimize2 } from "lucide-react";
 import { api } from "@/api";
 import { qk, useCourse, useMyEnrollments, useUserProgress } from "@/api/hooks";
 import { useAuth } from "@/auth/AuthContext";
@@ -17,6 +17,8 @@ import { LessonViewer } from "./LessonViewer";
 import type { Lesson, LessonProgress } from "@/api/types";
 
 const THEATER_KEY = "skillforge.theaterMode";
+/** Share of a lesson's declared duration that must be genuinely watched/read before it auto-completes. */
+const COMPLETION_THRESHOLD = 0.9;
 
 export default function Player() {
   const { courseId, lessonId } = useParams();
@@ -80,15 +82,22 @@ export default function Player() {
     await api.progress.set({ userId: user!.id, courseId: course.id, lessonId: current.id, ...p });
     await qc.invalidateQueries({ queryKey: qk.progress(user!.id) });
   };
-  const setComplete = (done: boolean) => save({ completedAt: done ? new Date().toISOString() : undefined });
   const go = (l?: Lesson) => l && navigate(`/learn/${course.id}/${l.id}`);
 
-  const markAndNext = async () => {
-    if (!isDone) await setComplete(true);
-    if (next) go(next);
-  };
-
   const savedPosition = progress.find((p) => p.lessonId === current.id)?.position ?? 0;
+  const savedActive = progress.find((p) => p.lessonId === current.id)?.activeSeconds ?? 0;
+  const engagementPct = Math.min(100, Math.round((savedActive / (current.durationMin * 60 || 1)) * 100));
+
+  /**
+   * There is no manual "mark complete" — a lesson completes itself once genuine
+   * engagement (real watch time for video, visible dwell time for documents)
+   * crosses the threshold. See LessonViewer for how that time is measured.
+   */
+  const handleActiveSeconds = (s: number) => {
+    const threshold = current.durationMin * 60 * COMPLETION_THRESHOLD;
+    const justCompleted = !isDone && threshold > 0 && s >= threshold;
+    save({ activeSeconds: s, ...(justCompleted && { completedAt: new Date().toISOString() }) });
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-ink-50">
@@ -149,9 +158,10 @@ export default function Player() {
             key={current.id}
             lesson={current}
             startAt={savedPosition}
+            startActive={savedActive}
             theater={theater}
             onPosition={(s) => save({ position: s })}
-            onFinished={() => !isDone && setComplete(true)}
+            onActiveSeconds={handleActiveSeconds}
             onAutoNext={next ? () => go(next) : undefined}
             nextTitle={next?.title}
           />
@@ -165,18 +175,27 @@ export default function Player() {
                 </div>
                 <h2 className="mt-2 text-xl font-semibold tracking-tight text-ink-900">{current.title}</h2>
               </div>
-              <Button variant={isDone ? "secondary" : "primary"} onClick={() => setComplete(!isDone)}>
-                {isDone ? <><CheckCircle2 className="size-4 text-emerald-600" /> Completed</> : <><Check className="size-4" /> Mark as complete</>}
-              </Button>
+              {isDone ? (
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3.5 py-2 text-sm font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                  <CheckCircle2 className="size-4" /> Completed
+                </span>
+              ) : (
+                <div className="flex shrink-0 items-center gap-2.5" title="Completes automatically once you've genuinely watched or read enough of this lesson.">
+                  <div className="h-1.5 w-20 overflow-hidden rounded-full bg-ink-100">
+                    <div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${engagementPct}%` }} />
+                  </div>
+                  <span className="text-xs font-medium text-ink-500">{engagementPct}% {current.type === "video" ? "watched" : "viewed"}</span>
+                </div>
+              )}
             </div>
             <div className="mt-5 flex items-center justify-between border-t border-ink-100 pt-4">
               <Button variant="ghost" disabled={!prev} onClick={() => go(prev)}><ArrowLeft className="size-4" /> Previous</Button>
               {next ? (
-                <Button variant={isDone ? "primary" : "secondary"} onClick={markAndNext}>{isDone ? "Next lesson" : "Complete & continue"} <ArrowRight className="size-4" /></Button>
+                <Button onClick={() => go(next)}>Next lesson <ArrowRight className="size-4" /></Button>
               ) : stats.pct === 100 ? (
                 <LinkButton to={`/learn/${course.id}/certificate`}><Award className="size-4" /> Get certificate</LinkButton>
               ) : (
-                <Button onClick={() => setComplete(true)} disabled={isDone}><Check className="size-4" /> Finish course</Button>
+                <span className="text-sm text-ink-500">{current.type === "video" ? "Keep watching" : "Keep reading"} to complete the course</span>
               )}
             </div>
           </div>

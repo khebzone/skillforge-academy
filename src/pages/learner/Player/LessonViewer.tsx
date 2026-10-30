@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import type { Lesson } from "@/api/types";
 
 const AUTOPLAY_SECONDS = 5;
+/** How often (in newly-accumulated seconds) we push an engagement update up to be saved. */
+const REPORT_EVERY = 5;
 
 /** Resolve a lesson file (external URL or an uploaded file key) to a playable URL. */
 function useResolvedUrl(url?: string, key?: string) {
@@ -19,48 +21,73 @@ function useResolvedUrl(url?: string, key?: string) {
   return { url: q.data || undefined, loading: q.isLoading, failed: q.isError };
 }
 
+/** Always-current ref to a callback, so effects/intervals never close over a stale prop. */
+function useLatest<T>(value: T) {
+  const ref = useRef(value);
+  ref.current = value;
+  return ref;
+}
+
 export function LessonViewer({
   lesson,
   startAt,
+  startActive,
   theater,
   onPosition,
-  onFinished,
+  onActiveSeconds,
   onAutoNext,
   nextTitle,
 }: {
   lesson: Lesson;
   startAt: number;
+  /** Previously-recorded genuine engagement (seconds) to resume accumulating from. */
+  startActive: number;
   theater: boolean;
   onPosition: (s: number) => void;
-  onFinished: () => void;
+  onActiveSeconds: (s: number) => void;
   onAutoNext?: () => void;
   nextTitle?: string;
 }) {
   if (lesson.type === "video") {
-    return <VideoViewer lesson={lesson} startAt={startAt} onPosition={onPosition} onFinished={onFinished} onAutoNext={onAutoNext} nextTitle={nextTitle} />;
+    return (
+      <VideoViewer
+        lesson={lesson}
+        startAt={startAt}
+        startActive={startActive}
+        onPosition={onPosition}
+        onActiveSeconds={onActiveSeconds}
+        onAutoNext={onAutoNext}
+        nextTitle={nextTitle}
+      />
+    );
   }
-  return <DocumentViewer lesson={lesson} theater={theater} />;
+  return <DocumentViewer lesson={lesson} theater={theater} startActive={startActive} onActiveSeconds={onActiveSeconds} />;
 }
 
 function VideoViewer({
   lesson,
   startAt,
+  startActive,
   onPosition,
-  onFinished,
+  onActiveSeconds,
   onAutoNext,
   nextTitle,
 }: {
   lesson: Lesson;
   startAt: number;
+  startActive: number;
   onPosition: (s: number) => void;
-  onFinished: () => void;
+  onActiveSeconds: (s: number) => void;
   onAutoNext?: () => void;
   nextTitle?: string;
 }) {
   const { url, loading, failed } = useResolvedUrl(lesson.url, lesson.fileKey);
   const ref = useRef<HTMLVideoElement>(null);
-  const lastSaved = useRef(0);
-  const finished = useRef(false);
+  const lastSavedPosition = useRef(0);
+  const lastTime = useRef(0);
+  const watched = useRef(startActive);
+  const lastReported = useRef(startActive);
+  const onActiveSecondsRef = useLatest(onActiveSeconds);
   const [countdown, setCountdown] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -108,18 +135,24 @@ function VideoViewer({
             }}
             onTimeUpdate={(e) => {
               const v = e.currentTarget;
-              if (v.currentTime - lastSaved.current >= 10) {
-                lastSaved.current = v.currentTime;
+              // Resume position (where to continue from) — separate from completion tracking.
+              if (v.currentTime - lastSavedPosition.current >= 10) {
+                lastSavedPosition.current = v.currentTime;
                 onPosition(Math.floor(v.currentTime));
               }
-              if (!finished.current && v.duration > 0 && v.currentTime / v.duration >= 0.9) {
-                finished.current = true;
-                onFinished();
+              // Genuine watch time: only count forward progress that looks like real
+              // playback (a small per-tick delta). A seek/scrub produces a large jump
+              // and is ignored, so dragging to the end can't fake completion.
+              const delta = v.currentTime - lastTime.current;
+              if (delta > 0 && delta < 1.5) watched.current += delta;
+              lastTime.current = v.currentTime;
+              if (watched.current - lastReported.current >= REPORT_EVERY) {
+                lastReported.current = watched.current;
+                onActiveSecondsRef.current(Math.floor(watched.current));
               }
             }}
             onEnded={() => {
-              finished.current = true;
-              onFinished();
+              onActiveSecondsRef.current(Math.floor(watched.current));
               startCountdown();
             }}
           />
@@ -149,11 +182,43 @@ function VideoViewer({
   );
 }
 
-function DocumentViewer({ lesson, theater }: { lesson: Lesson; theater: boolean }) {
+function DocumentViewer({
+  lesson,
+  theater,
+  startActive,
+  onActiveSeconds,
+}: {
+  lesson: Lesson;
+  theater: boolean;
+  startActive: number;
+  onActiveSeconds: (s: number) => void;
+}) {
   // PDFs show directly; presentations show their PDF rendition when available.
   const isPpt = lesson.type === "ppt";
   const view = useResolvedUrl(isPpt ? lesson.previewUrl : lesson.url, isPpt ? lesson.previewFileKey : lesson.fileKey);
   const original = useResolvedUrl(isPpt ? lesson.url : undefined, isPpt ? lesson.fileKey : undefined);
+  const dwelled = useRef(startActive);
+  const lastReported = useRef(startActive);
+  const onActiveSecondsRef = useLatest(onActiveSeconds);
+
+  // We can't see inside the browser's native PDF viewer (which page is showing, how
+  // far they've scrolled), so this is a proxy: count seconds the document has been
+  // open and the tab actually visible, as a stand-in for "spent time with it".
+  useEffect(() => {
+    if (!view.url) return;
+    const id = setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      dwelled.current += 1;
+      if (dwelled.current - lastReported.current >= REPORT_EVERY) {
+        lastReported.current = dwelled.current;
+        onActiveSecondsRef.current(Math.floor(dwelled.current));
+      }
+    }, 1000);
+    return () => {
+      clearInterval(id);
+      if (dwelled.current > lastReported.current) onActiveSecondsRef.current(Math.floor(dwelled.current));
+    };
+  }, [view.url, onActiveSecondsRef]);
 
   if (view.loading) return <div className="grid aspect-video place-items-center rounded-xl bg-white ring-1 ring-ink-200"><Spinner /></div>;
 
