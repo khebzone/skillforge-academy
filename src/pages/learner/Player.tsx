@@ -126,32 +126,42 @@ export default function Player() {
           <div className="mx-1 hidden h-6 w-px bg-ink-200 sm:block" />
           <h1 className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-900">{course.title}</h1>
 
-          <button
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Course content"
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-ink-600 hover:bg-ink-100",
-              !theater && "lg:hidden",
-            )}
-          >
-            <List className="size-4" /> <span className="hidden sm:inline">Contents</span>
-          </button>
-          <button
-            onClick={toggleTheater}
-            title={theater ? "Exit theater mode" : "Theater mode"}
-            aria-pressed={theater}
-            className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-ink-600 hover:bg-ink-100 lg:inline-flex"
-          >
-            {theater ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-          </button>
+          <div className="mx-1 hidden h-6 w-px bg-ink-200 sm:block" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Course content"
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-lg bg-ink-50 px-2.5 py-1.5 text-sm font-medium text-ink-600 ring-1 ring-inset ring-ink-200 transition-colors hover:bg-ink-100 hover:text-ink-900",
+                !theater && "lg:hidden",
+              )}
+            >
+              <List className="size-4" /> <span className="hidden sm:inline">Contents</span>
+            </button>
+            <button
+              onClick={toggleTheater}
+              title={theater ? "Exit theater mode" : "Theater mode"}
+              aria-label={theater ? "Exit theater mode" : "Theater mode"}
+              aria-pressed={theater}
+              className="hidden items-center gap-1.5 rounded-lg bg-ink-50 px-2.5 py-1.5 text-sm font-medium text-ink-600 ring-1 ring-inset ring-ink-200 transition-colors hover:bg-ink-100 hover:text-ink-900 lg:inline-flex"
+            >
+              {theater ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+            </button>
 
-          <div className="hidden w-48 items-center gap-3 md:flex">
-            <ProgressBar value={stats.pct} />
-            <span className="text-xs font-semibold tabular-nums text-ink-700">{stats.pct}%</span>
+            {stats.pct === 100 ? (
+              <span className="hidden items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-[7px] text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 md:inline-flex">
+                <CheckCircle2 className="size-3.5" /> Completed
+              </span>
+            ) : (
+              <div className="hidden w-44 items-center gap-2.5 rounded-full bg-ink-50 py-1.5 pl-3 pr-2.5 ring-1 ring-inset ring-ink-200 md:flex">
+                <ProgressBar value={stats.pct} />
+                <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-700">{stats.pct}%</span>
+              </div>
+            )}
+            {stats.pct === 100 && (
+              <LinkButton to={`/learn/${course.id}/certificate`} size="sm"><Award className="size-4" /> Certificate</LinkButton>
+            )}
           </div>
-          {stats.pct === 100 && (
-            <LinkButton to={`/learn/${course.id}/certificate`} size="sm"><Award className="size-4" /> Certificate</LinkButton>
-          )}
         </div>
         <div className="h-[2px] w-full bg-ink-100 md:hidden">
           <div className="h-full bg-brand-600 transition-all" style={{ width: `${stats.pct}%` }} />
