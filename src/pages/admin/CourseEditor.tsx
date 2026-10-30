@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { AlertCircle, ArrowDown, ArrowLeft, ArrowUp, CheckCircle2, ExternalLink, FileUp, Link2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { AlertCircle, ArrowDown, ArrowLeft, ArrowUp, CheckCircle2, ExternalLink, FileUp, Link2, MoreVertical, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { api } from "@/api";
 import { qk, useApiMutation, useCourse, useEnrollments } from "@/api/hooks";
 import { CourseCover, LessonTypeIcon } from "@/components/CourseVisuals";
@@ -158,13 +158,13 @@ export default function CourseEditor() {
 
 function DetailsTab({ draft, patch, onDelete }: { draft: Course; patch: (p: Partial<Course>) => void; onDelete: () => void }) {
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
       <Card className="space-y-5 p-6">
         <Field label="Course title"><Input value={draft.title} onChange={(e) => patch({ title: e.target.value })} placeholder="e.g. Leadership Essentials for First-Time Managers" /></Field>
         <Field label="Subtitle" hint="One sentence shown on course cards."><Input value={draft.subtitle} onChange={(e) => patch({ subtitle: e.target.value })} maxLength={140} /></Field>
         <Field label="Description"><Textarea rows={6} value={draft.description} onChange={(e) => patch({ description: e.target.value })} placeholder="What is this course about and who is it for?" /></Field>
         <Field label="What learners will achieve" hint="One outcome per line."><Textarea rows={5} value={draft.outcomes.join("\n")} onChange={(e) => patch({ outcomes: e.target.value.split("\n") })} onBlur={() => patch({ outcomes: draft.outcomes.map((o) => o.trim()).filter(Boolean) })} /></Field>
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <Field label="Category"><Select value={draft.category} onChange={(e) => patch({ category: e.target.value })}>{COURSE_CATEGORIES.map((c) => <option key={c}>{c}</option>)}</Select></Field>
           <Field label="Level"><Select value={draft.level} onChange={(e) => patch({ level: e.target.value })}>{COURSE_LEVELS.map((c) => <option key={c}>{c}</option>)}</Select></Field>
           <Field label="Language"><Input value={draft.language} onChange={(e) => patch({ language: e.target.value })} /></Field>
@@ -195,6 +195,7 @@ function DetailsTab({ draft, patch, onDelete }: { draft: Course; patch: (p: Part
 function CurriculumTab({ draft, patch }: { draft: Course; patch: (p: Partial<Course>) => void }) {
   const [editing, setEditing] = useState<{ sectionId: string; lesson: Lesson | null } | null>(null);
   const [deleteSection, setDeleteSection] = useState<Section | null>(null);
+  const [lessonMenu, setLessonMenu] = useState<string | null>(null);
 
   const setSections = (fn: (s: Section[]) => Section[]) => patch({ sections: fn(draft.sections) });
   const updateSection = (id: string, p: Partial<Section>) => setSections((ss) => ss.map((s) => (s.id === id ? { ...s, ...p } : s)));
@@ -252,10 +253,48 @@ function CurriculumTab({ draft, patch }: { draft: Course; patch: (p: Partial<Cou
                       )}
                     </p>
                   </div>
-                  <IconBtn label="Move lesson up" disabled={li === 0} onClick={() => updateSection(sec.id, { lessons: move(sec.lessons, li, li - 1) })}><ArrowUp className="size-4" /></IconBtn>
-                  <IconBtn label="Move lesson down" disabled={li === sec.lessons.length - 1} onClick={() => updateSection(sec.id, { lessons: move(sec.lessons, li, li + 1) })}><ArrowDown className="size-4" /></IconBtn>
-                  <IconBtn label="Edit lesson" onClick={() => setEditing({ sectionId: sec.id, lesson: l })}><Pencil className="size-4" /></IconBtn>
-                  <IconBtn label="Delete lesson" danger onClick={() => updateSection(sec.id, { lessons: sec.lessons.filter((x) => x.id !== l.id) })}><Trash2 className="size-4" /></IconBtn>
+                  <div className="hidden items-center sm:flex">
+                    <IconBtn label="Move lesson up" disabled={li === 0} onClick={() => updateSection(sec.id, { lessons: move(sec.lessons, li, li - 1) })}><ArrowUp className="size-4" /></IconBtn>
+                    <IconBtn label="Move lesson down" disabled={li === sec.lessons.length - 1} onClick={() => updateSection(sec.id, { lessons: move(sec.lessons, li, li + 1) })}><ArrowDown className="size-4" /></IconBtn>
+                    <IconBtn label="Edit lesson" onClick={() => setEditing({ sectionId: sec.id, lesson: l })}><Pencil className="size-4" /></IconBtn>
+                    <IconBtn label="Delete lesson" danger onClick={() => updateSection(sec.id, { lessons: sec.lessons.filter((x) => x.id !== l.id) })}><Trash2 className="size-4" /></IconBtn>
+                  </div>
+                  <div className="relative sm:hidden">
+                    <IconBtn label="Lesson actions" onClick={() => setLessonMenu(lessonMenu === l.id ? null : l.id)}><MoreVertical className="size-4" /></IconBtn>
+                    {lessonMenu === l.id && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setLessonMenu(null)} />
+                        <div className="absolute right-0 top-9 z-20 w-44 overflow-hidden rounded-lg bg-white py-1 shadow-pop ring-1 ring-ink-200">
+                          <button
+                            disabled={li === 0}
+                            onClick={() => { setLessonMenu(null); updateSection(sec.id, { lessons: move(sec.lessons, li, li - 1) }); }}
+                            className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-ink-700 hover:bg-ink-50 disabled:pointer-events-none disabled:opacity-40"
+                          >
+                            <ArrowUp className="size-4" /> Move up
+                          </button>
+                          <button
+                            disabled={li === sec.lessons.length - 1}
+                            onClick={() => { setLessonMenu(null); updateSection(sec.id, { lessons: move(sec.lessons, li, li + 1) }); }}
+                            className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-ink-700 hover:bg-ink-50 disabled:pointer-events-none disabled:opacity-40"
+                          >
+                            <ArrowDown className="size-4" /> Move down
+                          </button>
+                          <button
+                            onClick={() => { setLessonMenu(null); setEditing({ sectionId: sec.id, lesson: l }); }}
+                            className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-ink-700 hover:bg-ink-50"
+                          >
+                            <Pencil className="size-4" /> Edit lesson
+                          </button>
+                          <button
+                            onClick={() => { setLessonMenu(null); updateSection(sec.id, { lessons: sec.lessons.filter((x) => x.id !== l.id) }); }}
+                            className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="size-4" /> Delete lesson
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

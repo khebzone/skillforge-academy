@@ -105,7 +105,7 @@ export default function MyLearning() {
         </Card>
       ) : (
         <>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Enrolled courses" value={mine.length} icon={<BookOpenCheck />} />
             <StatCard label="In progress" value={inProgress} icon={<PlayCircle />} tone="sky" />
             <StatCard label="Completed" value={completed} icon={<Award />} tone="green" />
@@ -141,8 +141,8 @@ export default function MyLearning() {
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2.5">
-                <div className="relative">
+              <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+                <div className="relative w-full sm:w-auto">
                   <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-400" />
                   <Input
                     value={query}
@@ -152,7 +152,7 @@ export default function MyLearning() {
                     aria-label="Search my courses"
                   />
                 </div>
-                <Select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 w-[9.5rem]" aria-label="Sort courses">
+                <Select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 w-full sm:w-[9.5rem]" aria-label="Sort courses">
                   <option value="recent">Recently active</option>
                   <option value="progress">Progress</option>
                   <option value="title">Title A–Z</option>
@@ -169,7 +169,7 @@ export default function MyLearning() {
                 />
               </Card>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filtered.map((x) => (
                   <LearnerCourseCard key={x.e.id} e={x.e} course={x.course} p={x.p} />
                 ))}

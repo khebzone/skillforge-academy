@@ -117,7 +117,7 @@ export default function EnrollWizard() {
           <Card className="p-6">
             <h2 className="text-sm font-semibold text-ink-900">Courses to assign</h2>
             <p className="mt-1 text-sm text-ink-500">Only published courses can be assigned.</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {published.map((c) => {
                 const on = courseIds.includes(c.id);
                 return (
@@ -172,7 +172,7 @@ export default function EnrollWizard() {
       {/* Step 3 */}
       {step === 2 && (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
             {[
               ["Ready to enroll", valid.length, "text-ink-900"],
               ["New accounts", newAccounts, "text-brand-700"],

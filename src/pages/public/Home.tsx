@@ -16,7 +16,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-ink-950 text-white">
         <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: "radial-gradient(60% 80% at 85% 10%, rgb(99 102 241 / 0.45), transparent 60%), radial-gradient(40% 60% at 0% 100%, rgb(14 165 233 / 0.22), transparent 60%)" }} />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:py-28">
+        <div className="relative mx-auto grid grid-cols-1 max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:py-28">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-brand-200 ring-1 ring-white/15">
               <span className="size-1.5 rounded-full bg-emerald-400" /> Built for corporates and universities
@@ -88,7 +88,7 @@ export default function Home() {
             <p className="text-sm font-semibold text-brand-600">How it works</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink-900">From request to first lesson in three steps</h2>
           </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
             {[
               { icon: Layers, title: "1. Pick your courses", body: "Browse the catalog and tell us which programmes you want for your teams or cohorts." },
               { icon: Upload, title: "2. Share your list", body: "Send a spreadsheet of employees or students. We enroll everyone and create their accounts." },
@@ -119,7 +119,7 @@ export default function Home() {
           {isLoading ? (
             <div className="grid place-items-center py-20"><Spinner /></div>
           ) : (
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {courses?.slice(0, 6).map((c) => <CourseCard key={c.id} course={c} to={`/catalog/${c.id}`} />)}
             </div>
           )}
@@ -135,7 +135,7 @@ export default function Home() {
 
       {/* Features */}
       <section className="bg-white py-20">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-2 lg:items-center">
+        <div className="mx-auto grid grid-cols-1 max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="text-sm font-semibold text-brand-600">Why organizations choose us</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink-900">One platform, one expert instructor, zero overhead</h2>
@@ -143,7 +143,7 @@ export default function Home() {
               Every course is created and maintained in-house, so quality is consistent and updates are immediate. Your administrators don't need to manage a thing.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {[
               { icon: MonitorPlay, t: "Video, slides & PDFs", b: "Mixed-format lessons in a distraction-free player." },
               { icon: FileSpreadsheet, t: "Bulk enrollment", b: "Hand over a spreadsheet; we handle the rest." },

@@ -40,7 +40,7 @@ export default function Login() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+    <div className="grid grid-cols-1 min-h-screen lg:grid-cols-[1.05fr_1fr]">
       <div className="relative hidden overflow-hidden bg-ink-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(70% 60% at 100% 0%, rgb(99 102 241 / 0.5), transparent 60%), radial-gradient(50% 50% at 0% 100%, rgb(14 165 233 / 0.25), transparent 60%)" }} />
         <Logo dark className="relative" />

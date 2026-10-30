@@ -47,7 +47,7 @@ export default function OrganizationDetail() {
         <LinkButton to={`/admin/enrollments/new?org=${org.id}`}><ClipboardList className="size-4" /> Enroll learners</LinkButton>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Learners" value={data.members.length} icon={<Users />} />
         <StatCard label="Enrollments" value={data.mine.length} icon={<ClipboardList />} tone="sky" />
         <StatCard label="Completed" value={data.completed} hint={data.mine.length ? `${Math.round((data.completed / data.mine.length) * 100)}% completion` : undefined} icon={<Award />} tone="green" />
@@ -57,7 +57,7 @@ export default function OrganizationDetail() {
       {data.byCourse.length === 0 ? (
         <Card><EmptyState icon={<ClipboardList />} title="No enrollments yet" body="Upload this organization's learner list to enroll them in courses." action={<LinkButton to={`/admin/enrollments/new?org=${org.id}`}>Enroll learners</LinkButton>} /></Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {data.byCourse.map(({ course, rows }) => {
             const avg = Math.round(rows.reduce((n, r) => n + r.p.pct, 0) / rows.length);
             return (

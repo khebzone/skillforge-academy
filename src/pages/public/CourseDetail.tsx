@@ -33,7 +33,7 @@ export default function CourseDetail() {
   return (
     <div className="bg-ink-50">
       <section className="bg-ink-950 text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_360px]">
+        <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_360px]">
           <div>
             <nav className="text-sm text-ink-400"><Link to="/catalog" className="hover:text-white">Catalog</Link> / {course.category}</nav>
             <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{course.title}</h1>
@@ -49,11 +49,11 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_360px]">
+      <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
           <Card className="p-7">
             <h2 className="text-lg font-semibold text-ink-900">What learners will achieve</h2>
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {course.outcomes.map((o) => (
                 <li key={o} className="flex gap-2.5 text-[15px] text-ink-700"><Check className="mt-0.5 size-[18px] shrink-0 text-emerald-600" />{o}</li>
               ))}
@@ -191,7 +191,7 @@ function RequestModal({ course, open, onClose }: { course: Course; open: boolean
           <p className="mt-4 text-sm text-ink-600">Thanks! We'll contact you at <strong>{f.contactEmail}</strong> to collect your learner list and confirm the start date.</p>
         </div>
       ) : (
-        <form id="request-form" onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+        <form id="request-form" onSubmit={submit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Organization" className="sm:col-span-2"><Input required value={f.orgName} onChange={set("orgName")} placeholder="e.g. Acme Industries" /></Field>
           <Field label="Your name"><Input required value={f.contactName} onChange={set("contactName")} /></Field>
           <Field label="Work email"><Input required type="email" value={f.contactEmail} onChange={set("contactEmail")} /></Field>

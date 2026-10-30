@@ -55,7 +55,7 @@ export default function Dashboard() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Published courses" value={published} hint={`${courses!.length - published} in draft`} icon={<BookOpen />} />
         <StatCard label="Organizations" value={orgs?.length ?? 0} icon={<Building2 />} tone="sky" />
         <StatCard label="Learners" value={learners.length} icon={<Users />} tone="amber" />
@@ -63,7 +63,7 @@ export default function Dashboard() {
         <StatCard label="Completion rate" value={`${stats.rate}%`} icon={<Award />} tone="green" />
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr_1fr]">
         <Card>
           <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
             <h2 className="text-sm font-semibold text-ink-900">Course performance</h2>

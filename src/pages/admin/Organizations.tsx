@@ -41,7 +41,7 @@ export default function Organizations() {
       ) : !orgs?.length ? (
         <Card><EmptyState icon={<Building2 />} title="No organizations yet" body="Add a corporate or university customer to start enrolling their people." action={<Button onClick={() => setEditing({ type: "corporate" })}><Plus className="size-4" /> Add organization</Button>} /></Card>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {orgs.map((o) => {
             const members = learners?.filter((l) => l.orgId === o.id).length ?? 0;
             const enr = enrollments?.filter((e) => e.orgId === o.id).length ?? 0;
@@ -117,7 +117,7 @@ function OrgModal({ org, onSave, onClose, loading }: { org: Partial<Organization
             <option value="university">University</option>
           </Select>
         </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Contact person"><Input value={f.contactName} onChange={(e) => setF({ ...f, contactName: e.target.value })} /></Field>
           <Field label="Contact email"><Input type="email" value={f.contactEmail} onChange={(e) => setF({ ...f, contactEmail: e.target.value })} /></Field>
           <Field label="Mobile number" className="sm:col-span-2"><Input type="tel" value={f.contactPhone} onChange={(e) => setF({ ...f, contactPhone: e.target.value })} placeholder="+91 98765 43210" /></Field>

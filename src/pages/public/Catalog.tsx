@@ -61,7 +61,7 @@ export default function Catalog() {
         ) : (
           <>
             <p className="mb-5 text-sm text-ink-500">{filtered.length} {filtered.length === 1 ? "course" : "courses"}</p>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((c) => <CourseCard key={c.id} course={c} to={`/catalog/${c.id}`} />)}
             </div>
           </>
